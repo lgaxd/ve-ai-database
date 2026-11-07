@@ -1,0 +1,85 @@
+# Saída do mongosh · 06/11/2026 22:00 · MongoDB 9.0.2
+
+$ mongosh --file mongodb/01_setup.js
+Database: veai
+[
+  'descricoes',
+  'relatos',
+  'usuarios'
+]
+
+$ mongosh --file mongodb/02_insert.js
+Documentos inseridos:
+{
+  usuarios: 6,
+  descricoes: 20,
+  relatos: 15
+}
+
+$ mongosh --file mongodb/03_consultas.js
+
+==============================================================================
+Relatório 1 · Barreiras por região e tipo (aggregate)
+==============================================================================
+┌─────────┬────────────────┬────────────────────────┬────────────┬─────────────┬─────────────────┐
+│ (index) │ regiao         │ tipo                   │ qtdRelatos │ totalApoios │ gravidadeMaxima │
+├─────────┼────────────────┼────────────────────────┼────────────┼─────────────┼─────────────────┤
+│ 0       │ 'Pinheiros'    │ 'CALCADA_DANIFICADA'   │ 1          │ 2           │ 'ALTA'          │
+│ 1       │ 'Pinheiros'    │ 'OBSTRUCAO_PERMANENTE' │ 1          │ 1           │ 'MEDIA'         │
+│ 2       │ 'Pinheiros'    │ 'OUTRO'                │ 1          │ 0           │ 'MEDIA'         │
+│ 3       │ 'Pinheiros'    │ 'PISO_TATIL'           │ 1          │ 1           │ 'MEDIA'         │
+│ 4       │ 'Pinheiros'    │ 'SEMAFORO_SEM_SOM'     │ 1          │ 1           │ 'MEDIA'         │
+│ 5       │ 'Sé'           │ 'OBRA_SEM_SINALIZACAO' │ 2          │ 2           │ 'ALTA'          │
+│ 6       │ 'Sé'           │ 'PISO_TATIL'           │ 1          │ 3           │ 'ALTA'          │
+│ 7       │ 'Sé'           │ 'SEMAFORO_SEM_SOM'     │ 1          │ 2           │ 'MEDIA'         │
+│ 8       │ 'Vila Mariana' │ 'CALCADA_DANIFICADA'   │ 2          │ 0           │ 'MEDIA'         │
+│ 9       │ 'Vila Mariana' │ 'RAMPA'                │ 2          │ 0           │ 'ALTA'          │
+│ 10      │ 'Vila Mariana' │ 'OUTRO'                │ 1          │ 0           │ 'BAIXA'         │
+└─────────┴────────────────┴────────────────────────┴────────────┴─────────────┴─────────────────┘
+
+==============================================================================
+Relatório 2 · Relatos abertos há mais de 30 dias (find)
+==============================================================================
+┌─────────┬────┬─────────────┬────────────────────────┬───────────┬───────────────┬──────────────┬─────────────┐
+│ (index) │ id │ regiao      │ tipo                   │ gravidade │ status        │ diasEmAberto │ totalApoios │
+├─────────┼────┼─────────────┼────────────────────────┼───────────┼───────────────┼──────────────┼─────────────┤
+│ 0       │ 13 │ 'Sé'        │ 'SEMAFORO_SEM_SOM'     │ 'MEDIA'   │ 'ENCAMINHADO' │ 62           │ 2           │
+│ 1       │ 1  │ 'Pinheiros' │ 'CALCADA_DANIFICADA'   │ 'ALTA'    │ 'ABERTO'      │ 60           │ 2           │
+│ 2       │ 2  │ 'Pinheiros' │ 'OBSTRUCAO_PERMANENTE' │ 'MEDIA'   │ 'EM_TRIAGEM'  │ 50           │ 1           │
+│ 3       │ 6  │ 'Pinheiros' │ 'SEMAFORO_SEM_SOM'     │ 'MEDIA'   │ 'ABERTO'      │ 38           │ 1           │
+└─────────┴────┴─────────────┴────────────────────────┴───────────┴───────────────┴──────────────┴─────────────┘
+
+==============================================================================
+Relatório 3 · Taxa de descrições úteis por modo (aggregate)
+==============================================================================
+┌─────────┬────────────┬───────┬───────────┬───────┬─────────┐
+│ (index) │ modo       │ total │ avaliadas │ uteis │ taxaPct │
+├─────────┼────────────┼───────┼───────────┼───────┼─────────┤
+│ 0       │ 'AMBIENTE' │ 15    │ 12        │ 9     │ 75      │
+│ 1       │ 'TEXTO'    │ 5     │ 3         │ 2     │ 66.67   │
+└─────────┴────────────┴───────┴───────────┴───────┴─────────┘
+
+==============================================================================
+Bônus · Relatos CALCADA_DANIFICADA não finalizados a até 30 m do ponto (aggregate $geoNear)
+==============================================================================
+┌─────────┬─────┬──────────────────────────┬──────────┬─────────────┬─────────────────┐
+│ (index) │ _id │ endereco                 │ status   │ totalApoios │ distanciaMetros │
+├─────────┼─────┼──────────────────────────┼──────────┼─────────────┼─────────────────┤
+│ 0       │ 1   │ 'Rua dos Pinheiros, 500' │ 'ABERTO' │ 2           │ 9.9             │
+└─────────┴─────┴──────────────────────────┴──────────┴─────────────┴─────────────────┘
+
+==============================================================================
+Bônus · Fila da gestora Marina (Pinheiros e Sé) com $lookup do autor
+==============================================================================
+┌─────────┬────┬─────────────┬────────────────────────┬───────────────┬────────────┬────────────────┐
+│ (index) │ id │ regiao      │ tipo                   │ status        │ prioridade │ autor          │
+├─────────┼────┼─────────────┼────────────────────────┼───────────────┼────────────┼────────────────┤
+│ 0       │ 1  │ 'Pinheiros' │ 'CALCADA_DANIFICADA'   │ 'ABERTO'      │ 75         │ 'Ana Souza'    │
+│ 1       │ 13 │ 'Sé'        │ 'SEMAFORO_SEM_SOM'     │ 'ENCAMINHADO' │ 71         │ 'Ana Souza'    │
+│ 2       │ 2  │ 'Pinheiros' │ 'OBSTRUCAO_PERMANENTE' │ 'EM_TRIAGEM'  │ 56         │ 'Bruno Lima'   │
+│ 3       │ 4  │ 'Sé'        │ 'PISO_TATIL'           │ 'ABERTO'      │ 45         │ 'Carla Mendes' │
+│ 4       │ 6  │ 'Pinheiros' │ 'SEMAFORO_SEM_SOM'     │ 'ABERTO'      │ 44         │ 'Ana Souza'    │
+│ 5       │ 11 │ 'Sé'        │ 'OBRA_SEM_SINALIZACAO' │ 'ABERTO'      │ 14         │ 'Bruno Lima'   │
+│ 6       │ 10 │ 'Pinheiros' │ 'PISO_TATIL'           │ 'ABERTO'      │ 11         │ 'Diego Rocha'  │
+│ 7       │ 15 │ 'Pinheiros' │ 'OUTRO'                │ 'ABERTO'      │ 5          │ 'Carla Mendes' │
+└─────────┴────┴─────────────┴────────────────────────┴───────────────┴────────────┴────────────────┘
